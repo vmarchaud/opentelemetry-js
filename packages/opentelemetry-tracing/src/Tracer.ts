@@ -30,6 +30,7 @@ import { BasicTracerProvider } from './BasicTracerProvider';
 import { Span } from './Span';
 import { TraceParams, TracerConfig } from './types';
 import { mergeConfig } from './utility';
+import { Unpromisify } from '@opentelemetry/api';
 
 /**
  * This class represents a basic tracer.
@@ -124,6 +125,16 @@ export class Tracer implements api.Tracer {
   ): ReturnType<T> {
     // Set given span to context.
     return api.context.with(setActiveSpan(api.context.active(), span), fn);
+  }
+
+  /**
+   * Enters the context of code where the given Span is in the current context.
+   */
+  withSpanAsync<
+    T extends (...args: unknown[]) => Promise<Unpromisify<ReturnType<T>>>
+  >(span: api.Span, fn: T): Promise<T> {
+    // Set given span to context.
+    return api.context.withAsync(setActiveSpan(api.context.active(), span), fn);
   }
 
   /**

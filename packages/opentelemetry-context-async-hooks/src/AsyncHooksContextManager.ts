@@ -14,7 +14,11 @@
  * limitations under the License.
  */
 
-import { ContextManager, Context } from '@opentelemetry/context-base';
+import {
+  ContextManager,
+  Context,
+  Unpromisify,
+} from '@opentelemetry/context-base';
 import * as asyncHooks from 'async_hooks';
 import { EventEmitter } from 'events';
 
@@ -94,10 +98,9 @@ export class AsyncHooksContextManager implements ContextManager {
     }
   }
 
-  async withAsync<T extends Promise<any>, U extends (...args: unknown[]) => T>(
-    context: Context,
-    fn: U
-  ): Promise<T> {
+  async withAsync<
+    T extends (...args: unknown[]) => Promise<Unpromisify<ReturnType<T>>>
+  >(context: Context, fn: T): Promise<T> {
     const uid = asyncHooks.executionAsyncId();
     let ref = this._contextRefs.get(uid);
     let oldContext: Context | undefined = undefined;

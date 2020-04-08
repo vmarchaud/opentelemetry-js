@@ -15,6 +15,7 @@
  */
 
 import { Span, SpanOptions, Tracer } from '..';
+import { Unpromisify } from './tracer';
 import { NOOP_SPAN } from './NoopSpan';
 
 /**
@@ -35,6 +36,12 @@ export class NoopTracer implements Tracer {
     fn: T
   ): ReturnType<T> {
     return fn();
+  }
+
+  async withSpanAsync<
+    T extends (...args: unknown[]) => Promise<Unpromisify<ReturnType<T>>>
+  >(span: Span, fn: T): Promise<T> {
+    return await fn();
   }
 
   bind<T>(target: T, span?: Span): T {

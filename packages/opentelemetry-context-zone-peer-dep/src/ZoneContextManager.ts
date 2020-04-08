@@ -249,7 +249,13 @@ export class ZoneContextManager implements ContextManager {
     return newZone.run(fn, context);
   }
 
-  withAsync(context: Context, fn: Function) {
-    return fn();
+  /**
+   * @TODO not sure if important here
+   */
+  withAsync<T extends (...args: unknown[]) => ReturnType<T>>(
+    context: Context | null,
+    fn: () => ReturnType<T>
+  ): ReturnType<T> {
+    return this.with(context, fn);
   }
 }

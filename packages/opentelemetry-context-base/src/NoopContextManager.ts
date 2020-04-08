@@ -26,8 +26,10 @@ export class NoopContextManager implements types.ContextManager {
     return fn();
   }
 
-  withAsync(context: Context, fn: Function) {
-    return fn();
+  async withAsync<
+    T extends (...args: unknown[]) => Promise<types.Unpromisify<ReturnType<T>>>
+  >(context: Context, fn: T): Promise<T> {
+    return await fn();
   }
 
   bind<T>(target: T, context?: Context): T {

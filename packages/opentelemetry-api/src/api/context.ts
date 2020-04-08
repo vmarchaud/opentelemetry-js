@@ -19,6 +19,7 @@ import {
   NoopContextManager,
   Context,
 } from '@opentelemetry/context-base';
+import { Unpromisify } from '../trace/tracer';
 
 /**
  * Singleton object which represents the entry point to the OpenTelemetry Context API
@@ -67,6 +68,21 @@ export class ContextAPI {
     fn: T
   ): ReturnType<T> {
     return this._contextManager.with(context, fn);
+  }
+
+  /**
+   * Execute a async function with an active context
+   * 
+   * You **must** always await this function when calling it otherwise
+   * it might leak context.
+   *
+   * @param context context to be active during function execution
+   * @param fn function to execute in a context
+   */
+  public async withAsync<
+    T extends (...args: unknown[]) => Promise<Unpromisify<ReturnType<T>>>
+  >(context: Context, fn: T): Promise<T> {
+    return this._contextManager.withAsync(context, fn);
   }
 
   /**

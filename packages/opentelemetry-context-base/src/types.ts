@@ -16,6 +16,8 @@
 
 import { Context } from './context';
 
+export type Unpromisify<T> = T extends Promise<infer U> ? U : T;
+
 export interface ContextManager {
   /**
    * Get the current active context
@@ -33,17 +35,6 @@ export interface ContextManager {
   ): ReturnType<T>;
 
   /**
-   * Run the async fn callback with an active scope
-   *
-   * @param scope Context to be active during function invocation
-   * @param fn An async callback to be immediately run with an active context
-   */
-  withAsync<T extends Promise<any>, U extends (...args: unknown[]) => T>(
-    scope: Context,
-    fn: U
-  ): Promise<T>;
-
-  /**
    * Bind an object as the current context (or a specific one)
    * @param target Any object to which a context need to be set
    * @param [context] Optionally specify the context which you want to assign
@@ -59,4 +50,17 @@ export interface ContextManager {
    * Disable context management
    */
   disable(): this;
+
+  /**
+   * Run the async fn callback with an active scope
+   *
+   * @param scope Context to be active during function invocation
+   * @param fn An async callback to be immediately run with an active context
+   */
+  withAsync<
+    T extends (...args: unknown[]) => Promise<Unpromisify<ReturnType<T>>>
+  >(
+    scope: Context,
+    fn: T
+  ): Promise<T>;
 }

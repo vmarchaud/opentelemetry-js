@@ -18,6 +18,8 @@ import { Context } from '@opentelemetry/context-base';
 import { Span } from './span';
 import { SpanOptions } from './SpanOptions';
 
+export type Unpromisify<T> = T extends Promise<infer R> ? R : T;
+
 /**
  * Tracer provides an interface for creating {@link Span}s and propagating
  * context in-process.
@@ -56,6 +58,24 @@ export interface Tracer {
     span: Span,
     fn: T
   ): ReturnType<T>;
+
+  /**
+   * Executes the async function given by fn within the context provided by Span
+   * 
+   * You **must** always await this function when calling it otherwise
+   * it might leak context.
+   *
+   * @param span The span that provides the context
+   * @param fn The function to be executed inside the provided context
+   * @example
+   * await tracer.withSpanAsync(span, function() { ... });
+   */
+  withSpanAsync<
+    T extends (...args: unknown[]) => Promise<Unpromisify<ReturnType<T>>>
+  >(
+    span: Span,
+    fn: T
+  ): Promise<T>;
 
   /**
    * Bind a span as the target's context or propagate the current one.
