@@ -25,10 +25,12 @@ import {
   MetricKind,
   ObserverAggregator,
   Sum,
+  MeasureExactAggregator,
+  Distribution,
 } from '@opentelemetry/metrics';
 import * as types from '@opentelemetry/api';
 import { createServer, IncomingMessage, Server, ServerResponse } from 'http';
-import { Counter, Gauge, labelValues, Metric, Registry } from 'prom-client';
+import { Counter, Gauge, labelValues, Metric, Registry, Summary } from 'prom-client';
 import * as url from 'url';
 import { ExporterConfig } from './export/types';
 
@@ -153,7 +155,17 @@ export class PrometheusExporter implements MetricExporter {
       }
     }
 
-    // TODO: only counter and gauge are implemented in metrics so far
+    // everytime we get a value, we reset the aggregator
+    if (metric instanceof Summary && record.aggregator instanceof MeasureExactAggregator) {
+      const distribution = point.value as Distribution
+      const avg = distribution.sum / distribution.count
+      metric.observe(avg)
+      // @ts-ignore
+      record.aggregator._distribution = {
+        sum: 0,
+        count: 0
+      }
+    }
   }
 
   private _getLabelValues(keys: string[], labels: types.Labels) {
@@ -208,6 +220,12 @@ export class PrometheusExporter implements MetricExporter {
           : new Gauge(metricObject);
       case MetricKind.OBSERVER:
         return new Gauge(metricObject);
+      case MetricKind.MEASURE:
+        return new Summary(Object.assign({}, metricObject, {
+          maxAgeSeconds: 600,
+          ageBuckets: 5,
+          percentiles: [0.25, 0.5, 0.75, 0.9, 0.95, 0.99],
+        }))
       default:
         // Other metric types are currently unimplemented
         return undefined;
