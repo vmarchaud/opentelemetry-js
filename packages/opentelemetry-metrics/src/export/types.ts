@@ -64,6 +64,10 @@ export interface Histogram {
   count: number;
 }
 
+export interface SketchHistogram {
+
+}
+
 export interface MetricRecord {
   readonly descriptor: MetricDescriptor;
   readonly labels: Labels;
@@ -107,6 +111,6 @@ export interface Aggregator {
 }
 
 export interface Point {
-  value: Sum | LastValue | Distribution | Histogram;
+  value: Sum | LastValue | Distribution | Histogram | SketchHistogram;
   timestamp: HrTime;
 }
