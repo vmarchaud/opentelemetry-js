@@ -57,6 +57,7 @@
   "dependencies": {
     "@opentelemetry/api": "^0.8.2",
     "@opentelemetry/core": "^0.8.2",
-    "@opentelemetry/resources": "^0.8.2"
+    "@opentelemetry/resources": "^0.8.2",
+    "hdr-histogram-js": "^1.2.0"
   }
 }
