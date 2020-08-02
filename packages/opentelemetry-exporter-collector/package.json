@@ -5,27 +5,14 @@
   "main": "build/src/index.js",
   "types": "build/src/index.d.ts",
   "repository": "open-telemetry/opentelemetry-js",
-  "browser": {
-    "./src/platform/index.ts": "./src/platform/browser/index.ts",
-    "./build/src/platform/index.js": "./build/src/platform/browser/index.js"
-  },
   "scripts": {
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",
     "clean": "rimraf build/*",
-    "codecov:browser": "nyc report --reporter=json && codecov -f coverage/*.json -p ../../",
-    "precompile": "tsc --version",
-    "compile": "npm run version:update && tsc -p .",
-    "postcompile": "npm run submodule && npm run protos:copy",
-    "prepare": "npm run compile",
-    "protos:copy": "cpx src/platform/node/protos/opentelemetry/**/*.* build/src/platform/node/protos/opentelemetry",
-    "submodule": "git submodule sync --recursive && git submodule update --init --recursive",
-    "tdd": "npm run test -- --watch-extensions ts --watch",
-    "tdd:browser": "karma start",
-    "test": "nyc ts-mocha -p tsconfig.json 'test/**/*.test.ts' --exclude 'test/browser/**/*.ts'",
-    "test:browser": "nyc karma start --single-run",
     "version:update": "node ../../scripts/version-update.js",
-    "watch": "npm run protos:copy && tsc -w"
+    "compile": "npm run version:update && tsc -p .",
+    "prepare": "npm run compile",
+    "watch": "tsc -w"
   },
   "keywords": [
     "opentelemetry",
@@ -63,13 +50,6 @@
     "codecov": "3.7.2",
     "cpx": "1.5.0",
     "gts": "2.0.2",
-    "istanbul-instrumenter-loader": "3.0.1",
-    "karma": "5.1.1",
-    "karma-chrome-launcher": "3.1.0",
-    "karma-coverage-istanbul-reporter": "3.0.3",
-    "karma-mocha": "2.0.1",
-    "karma-spec-reporter": "0.0.32",
-    "karma-webpack": "4.0.2",
     "mocha": "7.2.0",
     "nyc": "15.1.0",
     "rimraf": "3.0.2",
@@ -83,13 +63,7 @@
     "webpack-merge": "5.0.9"
   },
   "dependencies": {
-    "@grpc/proto-loader": "^0.5.4",
-    "@opentelemetry/api": "^0.10.1",
-    "@opentelemetry/core": "^0.10.1",
-    "@opentelemetry/metrics": "^0.10.1",
-    "@opentelemetry/resources": "^0.10.1",
-    "@opentelemetry/tracing": "^0.10.1",
-    "grpc": "^1.24.2",
-    "protobufjs": "^6.9.0"
+    "@opentelemetry/exporter-collector-optional-dep": "^0.10.1",
+    "grpc": "^1.24.2"
   }
 }

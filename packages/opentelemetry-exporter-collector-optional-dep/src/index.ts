@@ -14,4 +14,5 @@
  * limitations under the License.
  */
 
-export * from '@opentelemetry/exporter-collector-optional-dep';
+export * from './platform';
+export * from './enums';
