@@ -14,16 +14,13 @@
  * limitations under the License.
  */
 
-import { Metadata } from 'grpc';
 import { CollectorExporterBase } from '../../CollectorExporterBase';
 import { ServiceClientType } from '../../types';
 import { CollectorExporterConfigNode, GRPCQueueItem } from './types';
-import { ServiceClient } from './types';
 import { CollectorProtocolNode } from '../../enums';
 import * as collectorTypes from '../../types';
 import { parseHeaders } from '../../util';
 import { initWithJson, sendWithJson } from './utilWithJson';
-import { initWithGrpc, sendWithGrpc } from './utilWithGrpc';
 import { initWithJsonProto, sendWithJsonProto } from './utilWithJsonProto';
 
 const DEFAULT_SERVICE_NAME = 'collector-metric-exporter';
@@ -43,8 +40,8 @@ export abstract class CollectorExporterNodeBase<
     [collectorTypes.OT_REQUEST_HEADER]: '1',
   };
   grpcQueue: GRPCQueueItem<ExportItem>[] = [];
-  metadata?: Metadata;
-  serviceClient?: ServiceClient = undefined;
+  metadata?: {};
+  serviceClient?: unknown = undefined;
   headers: Record<string, string>;
   protected readonly _protocol: CollectorProtocolNode;
 
@@ -65,24 +62,19 @@ export abstract class CollectorExporterNodeBase<
       } else {
         this.logger.debug('CollectorExporter - using proto over http');
       }
-      if (config.metadata) {
-        this.logger.warn('Metadata cannot be set when using http');
-      }
     }
     this.headers =
       parseHeaders(config.headers, this.logger) || this.DEFAULT_HEADERS;
-    this.metadata = config.metadata;
+    this.metadata = undefined;
   }
 
   onInit(config: CollectorExporterConfigNode): void {
     this._isShutdown = false;
 
-    if (config.protocolNode === CollectorProtocolNode.HTTP_JSON) {
-      initWithJson(this, config);
-    } else if (config.protocolNode === CollectorProtocolNode.HTTP_PROTO) {
+    if (config.protocolNode === CollectorProtocolNode.HTTP_PROTO) {
       initWithJsonProto(this, config);
     } else {
-      initWithGrpc(this, config);
+      initWithJson(this, config);
     }
   }
 
@@ -95,20 +87,15 @@ export abstract class CollectorExporterNodeBase<
       this.logger.debug('Shutdown already started. Cannot send objects');
       return;
     }
-    if (this._protocol === CollectorProtocolNode.HTTP_JSON) {
-      sendWithJson(this, objects, onSuccess, onError);
-    } else if (this._protocol === CollectorProtocolNode.HTTP_PROTO) {
+    if (this._protocol === CollectorProtocolNode.HTTP_PROTO) {
       sendWithJsonProto(this, objects, onSuccess, onError);
     } else {
-      sendWithGrpc(this, objects, onSuccess, onError);
+      sendWithJson(this, objects, onSuccess, onError);
     }
   }
 
   onShutdown(): void {
     this._isShutdown = true;
-    if (this.serviceClient) {
-      this.serviceClient.close();
-    }
   }
 
   getDefaultServiceName(config: CollectorExporterConfigNode): string {

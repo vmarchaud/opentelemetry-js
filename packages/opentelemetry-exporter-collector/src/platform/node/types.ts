@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import * as grpc from 'grpc';
 import { CollectorProtocolNode } from '../../enums';
 import {
   CollectorExporterError,
@@ -32,22 +31,9 @@ export interface GRPCQueueItem<ExportedItem> {
 }
 
 /**
- * Service Client for sending spans or metrics
- */
-export interface ServiceClient extends grpc.Client {
-  export: (
-    request: any,
-    metadata: grpc.Metadata | undefined,
-    callback: Function
-  ) => {};
-}
-
-/**
  * Collector Exporter Config for Node
  */
 export interface CollectorExporterConfigNode
   extends CollectorExporterConfigBase {
-  credentials?: grpc.ChannelCredentials;
-  metadata?: grpc.Metadata;
   protocolNode?: CollectorProtocolNode;
 }

@@ -188,7 +188,7 @@ export function toCollectorResource(
   const attr = Object.assign(
     {},
     additionalAttributes,
-    resource ? resource.attributes : {}
+    resource ? resource.labels : {}
   );
   const resourceProto: opentelemetryProto.resource.v1.Resource = {
     attributes: toCollectorAttributes(attr),

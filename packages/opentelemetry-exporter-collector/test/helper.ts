@@ -28,7 +28,6 @@ import {
   HistogramAggregator,
 } from '@opentelemetry/metrics';
 import { InstrumentationLibrary } from '@opentelemetry/core';
-import * as grpc from 'grpc';
 
 if (typeof Buffer === 'undefined') {
   (window as any).Buffer = {
@@ -1269,27 +1268,4 @@ export function ensureExportMetricsServiceRequestIsSet(
   const metric2 = resourceMetrics[1].instrumentationLibraryMetrics[0].metrics;
   assert.strictEqual(metric1.length, 1, 'Metrics are missing');
   assert.strictEqual(metric2.length, 1, 'Metrics are missing');
-}
-
-export function ensureMetadataIsCorrect(
-  actual: grpc.Metadata,
-  expected: grpc.Metadata
-) {
-  //ignore user agent
-  expected.remove('user-agent');
-  actual.remove('user-agent');
-  assert.deepStrictEqual(actual.getMap(), expected.getMap());
-}
-
-export function ensureHeadersContain(
-  actual: { [key: string]: string },
-  expected: { [key: string]: string }
-) {
-  Object.entries(expected).forEach(([k, v]) => {
-    assert.strictEqual(
-      v,
-      actual[k],
-      `Expected ${actual} to contain ${k}: ${v}`
-    );
-  });
 }

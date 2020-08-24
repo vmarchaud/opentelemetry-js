@@ -73,8 +73,8 @@ export abstract class CollectorExporterBase<
         resultCallback(ExportResult.SUCCESS);
       })
       .catch((error: ExportServiceError) => {
-        if (error.message) {
-          this.logger.error(error.message);
+        if (error) {
+          this.logger.error(`Error while exporting data to collector`, error);
         }
         if (error.code && error.code < 500) {
           resultCallback(ExportResult.FAILED_NOT_RETRYABLE);
