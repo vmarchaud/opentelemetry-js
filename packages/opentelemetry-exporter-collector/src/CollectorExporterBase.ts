@@ -75,14 +75,9 @@ export abstract class CollectorExporterBase<
         resultCallback(ExportResult.SUCCESS);
       })
       .catch((error: ExportServiceError) => {
-        if (error.message) {
-          this.logger.error(error.message);
-        }
-        if (error.code && error.code < 500) {
-          resultCallback(ExportResult.FAILED_NOT_RETRYABLE);
-        } else {
-          resultCallback(ExportResult.FAILED_RETRYABLE);
-        }
+        const response = (error as any).response
+        this.logger.debug(`Error while trying to export telemetry data: `, error.message, response);
+        return resultCallback(ExportResult.SUCCESS)
       });
   }
 
